@@ -6,7 +6,7 @@ import sqlite3
 app = Flask(__name__)
 
 # Initialize OpenAI GPT-4 API key
-openai.api_key = "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"
+openai.api_key = ""
 
 # Load BioBERT NER model and tokenizer once at startup
 tokenizer = AutoTokenizer.from_pretrained("ugaray96/biobert_ncbi_disease_ner")
