@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GenAI Health Assistant</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main>
+    <h1>Medical Diagnosis Assistant</h1>
+    <form id="diagnosisForm" novalidate>
+      <label for="symptoms">Symptoms:</label>
+      <textarea id="symptoms" required placeholder="Enter symptoms here"></textarea>
+
+      <label for="history">Medical History:</label>
+      <textarea id="history" placeholder="Enter medical history"></textarea>
+
+      <label for="vitals">Vital Signs (Temperature °C):</label>
+      <input type="number" id="vitals" required min="30" max="45" step="0.1" placeholder="36.6" />
+
+      <label for="language">Select Language:</label>
+      <select id="language">
+        <option value="en" selected>English</option>
+        <option value="hi">Hindi</option>
+        <option value="ta">Tamil</option>
+        <option value="te">Telugu</option>
+        <option value="bn">Bengali</option>
+      </select>
+
+      <button type="submit">Diagnose</button>
+    </form>
+
+    <section id="results"></section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
