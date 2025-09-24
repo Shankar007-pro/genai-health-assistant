@@ -47,14 +47,17 @@ document.getElementById('diagnosisForm').addEventListener('submit', async functi
   resultsDiv.textContent = msg.loading;
 
   try {
-    // Replace with actual backend fetch call when ready
-    const data = {
-      diagnosis: "Common Cold",
-      confidence: 88,
-      drugInteractionAlert: "No known drug interactions.",
-      dosageRecommendation: "Paracetamol 500mg every 6 hours.",
-      referralAdvice: "No specialist referral required."
-    };
+    const response = await fetch('http://127.0.0.1:5000/diagnose', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    const data = await response.json();
 
     resultsDiv.innerHTML = `
       <h3>${msg.diagnosis}</h3><p>${data.diagnosis}</p>
