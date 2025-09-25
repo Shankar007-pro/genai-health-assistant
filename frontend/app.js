@@ -82,7 +82,7 @@ diagnosisForm.addEventListener('submit', async function (e) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
-      signal: (new AbortController()).signal, // Add abort control if needed
+      signal: (new AbortController()).signal, 
     });
 
     if (!response.ok) {
