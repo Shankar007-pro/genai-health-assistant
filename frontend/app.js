@@ -58,7 +58,7 @@ diagnosisForm.addEventListener('submit', async function (e) {
   const language = document.getElementById('language').value;
   const msg = messages[language] || messages.en;
 
-  // Clear previous results
+
   resultsDiv.innerHTML = '';
 
   if (!symptoms) {
@@ -72,7 +72,6 @@ diagnosisForm.addEventListener('submit', async function (e) {
     return;
   }
 
-  // Show loading with spinner
   resultsDiv.style.color = '#0057d9';
   resultsDiv.innerHTML = `<span>${msg.loading}</span><span class="loading-spinner" aria-hidden="true"></span>`;
 
@@ -92,7 +91,6 @@ diagnosisForm.addEventListener('submit', async function (e) {
 
     const data = await response.json();
 
-    // Sanitize and show results
     resultsDiv.innerHTML = `
       <h3>${msg.diagnosis}</h3><p>${escapeHtml(data.diagnosis)}</p>
       <h4>${msg.confidence}</h4><p>${escapeHtml(data.confidence)}%</p>
@@ -107,7 +105,6 @@ diagnosisForm.addEventListener('submit', async function (e) {
   }
 });
 
-// Basic HTML escaping for text outputs to avoid XSS
 function escapeHtml(text) {
   if (!text) return '';
   return text.replace(/[&<>"']/g, function (match) {
