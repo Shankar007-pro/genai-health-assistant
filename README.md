@@ -22,9 +22,9 @@ This project implements a Generative AI-powered medical diagnosis assistant tail
 
 | Component             | Technology/Library       | Description                             |
 |-----------------------|-------------------------|-----------------------------------------|
-| AI Models             | OpenAI GPT-4, Hugging Face BioBERT | Diagnosis generation, biomedical NLP   |
+| AI Models             | OpenAI GPT-4,           |  Diagnosis generati on, biomedical NLP   |
 | Backend Framework     | Flask / FastAPI           | API development and AI model integration |
-| Frontend Framework     | React / Vanilla HTML/CSS/JavaScript | User interface providing multilingual support |
+| Frontend Framework    | HTML/CSS/JavaScript | User interface providing multilingual support |
 | Database              | SQLite                   | Local patient data storage              |
 | Languages              | Python, JavaScript        | Backend and frontend development         |
 | Libraries              | transformers, torch, openai, flask, react | Model inference, API, UI components    |
@@ -144,8 +144,3 @@ text
 - Integration with portable medical devices for real-time vitals input  
 - Continuous learning to update rural disease database dynamically  
 
----
-
-## License and Contribution
-
-This project is open-source under the MIT License. Contributions are welcome via pull requests and issues. Please follow community guidelines for ethical use in healthcare scenarios.
