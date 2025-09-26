@@ -3,24 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>GenAI Health Assistant</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>GenAI Health Assistant - Medical Diagnosis Assistant</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main>
     <h1>Medical Diagnosis Assistant</h1>
-    <form id="diagnosisForm" novalidate>
-      <label for="symptoms">Symptoms:</label>
-      <textarea id="symptoms" required placeholder="Enter symptoms here" rows="4" aria-required="true"></textarea>
+    <form id="diagnosisForm" novalidate aria-describedby="formInstructions">
+      <p id="formInstructions" class="sr-only">
+        Enter your symptoms, optional medical history, vital signs, and choose language.
+        Press Diagnose to get results including confidence, treatment options, drug alerts, and referrals.
+      </p>
+
+      <label for="symptoms">Symptoms <span aria-hidden="true">*</span>:</label>
+      <textarea id="symptoms" name="symptoms" required placeholder="Enter symptoms here" rows="4" aria-required="true" aria-describedby="symptomsHelp"></textarea>
+      <small id="symptomsHelp" class="help-text">Please describe your current symptoms clearly.</small>
 
       <label for="history">Medical History:</label>
-      <textarea id="history" placeholder="Enter medical history" rows="3" aria-required="false"></textarea>
+      <textarea id="history" name="history" placeholder="Enter medical history" rows="3" aria-required="false" aria-describedby="historyHelp"></textarea>
+      <small id="historyHelp" class="help-text">Any relevant past health conditions or treatments.</small>
 
-      <label for="vitals">Vital Signs (Temperature °C):</label>
-      <input type="number" id="vitals" required min="30" max="45" step="0.1" placeholder="36.6" aria-required="true" />
+      <label for="vitals">Vital Signs (Temperature °C) <span aria-hidden="true">*</span>:</label>
+      <input type="number" id="vitals" name="vitals" required min="30" max="45" step="0.1" placeholder="36.6" aria-required="true" aria-describedby="vitalsHelp" />
+      <small id="vitalsHelp" class="help-text">Enter your current body temperature (30.0 - 45.0 °C).</small>
 
       <label for="language">Select Language:</label>
-      <select id="language" aria-label="Select language for input and output">
+      <select id="language" name="language" aria-label="Select language for input and output">
         <option value="en" selected>English</option>
         <option value="hi">Hindi</option>
         <option value="ta">Tamil</option>
@@ -28,12 +36,14 @@
         <option value="bn">Bengali</option>
       </select>
 
-      <button type="submit" aria-live="polite">Diagnose</button>
+      <button type="submit" aria-live="polite" aria-busy="false">Diagnose</button>
+
+      <div id="validationErrors" aria-live="assertive" role="alert"></div>
     </form>
 
-    <section id="results" role="region" aria-live="polite" aria-atomic="true"></section>
+    <section id="results" role="region" aria-live="polite" aria-atomic="true" tabindex="0"></section>
   </main>
 
-  <script src="app.js"></script>
+  <script src="app.js" defer></script>
 </body>
 </html>
