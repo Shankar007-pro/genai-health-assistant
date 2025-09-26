@@ -1,119 +1,191 @@
-const messages = {
-  en: {
-    loading: "Loading diagnosis...",
-    error: "Error fetching diagnosis: ",
-    diagnosis: "Diagnosis:",
-    confidence: "Confidence:",
-    drugInteraction: "Drug Interaction Alert:",
-    dosage: "Dosage Recommendation:",
-    referral: "Specialist Referral Advice:"
-  },
-  hi: {
-    loading: "निदान लोड हो रहा है...",
-    error: "निदान लाने में त्रुटि: ",
-    diagnosis: "निदान:",
-    confidence: "विश्वसनीयता:",
-    drugInteraction: "दवा इंटरैक्शन चेतावनी:",
-    dosage: "खुराक की सिफारिश:",
-    referral: "विशेषज्ञ परामर्श सलाह:"
-  },
-  ta: {
-    loading: "மருத்துவ ஆலோசனை ஏற்றப்படுகிறது...",
-    error: "பிழை: ",
-    diagnosis: "மருத்துவ நிலை:",
-    confidence: "நம்பகத்தன்மை:",
-    drugInteraction: "மருந்து தொடர்பு எச்சரிக்கை:",
-    dosage: "மருந்து பரிந்துரை:",
-    referral: "தொகுதியியல் ஆலோசனை:"
-  },
-  te: {
-    loading: "నిర్ధారణ లోడ్ అవుతోంది...",
-    error: "లోపం: ",
-    diagnosis: "నిర్ధారణ:",
-    confidence: "నమ్మకం:",
-    drugInteraction: "మందుల పరస్పర చర్య హెచ్చరిక:",
-    dosage: "మోతాదు సిఫార్సు:",
-    referral: "నిపుణుల సూచన:"
-  },
-  bn: {
-    loading: "রোগ নির্ণয় চলছে...",
-    error: "ত্রুটি: ",
-    diagnosis: "রোগ নির্ণয়:",
-    confidence: "বিশ্বাসযোগ্যতা:",
-    drugInteraction: "ড্রাগ ইন্টারঅ্যাকশন সতর্কতা:",
-    dosage: "ডোজ সুপারিশ:",
-    referral: "বিশেষজ্ঞ পরামর্শ:"
-  }
-};
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('diagnosisForm');
+  const symptomsInput = document.getElementById('symptoms');
+  const historyInput = document.getElementById('history');
+  const vitalsInput = document.getElementById('vitals');
+  const languageSelect = document.getElementById('language');
+  const resultsSection = document.getElementById('results');
+  const validationErrors = document.getElementById('validationErrors');
+  const submitButton = form.querySelector('button[type="submit"]');
 
-const diagnosisForm = document.getElementById('diagnosisForm');
-const resultsDiv = document.getElementById('results');
+  // Simple client-side validation rules
+  function validateForm() {
+    let errors = [];
+    // Trim inputs
+    const symptoms = symptomsInput.value.trim();
+    const vitals = vitalsInput.value.trim();
 
-diagnosisForm.addEventListener('submit', async function (e) {
-  e.preventDefault();
-
-  const symptoms = document.getElementById('symptoms').value.trim();
-  const history = document.getElementById('history').value.trim();
-  const vitals = parseFloat(document.getElementById('vitals').value);
-  const language = document.getElementById('language').value;
-  const msg = messages[language] || messages.en;
-
-
-  resultsDiv.innerHTML = '';
-
-  if (!symptoms) {
-    resultsDiv.textContent = msg.error + "Symptoms are required.";
-    resultsDiv.style.color = '#e53935';
-    return;
-  }
-  if (isNaN(vitals) || vitals < 30 || vitals > 45) {
-    resultsDiv.textContent = msg.error + "Vital signs input is invalid.";
-    resultsDiv.style.color = '#e53935';
-    return;
+    if (!symptoms) errors.push('Symptoms are required.');
+    if (!vitals) {
+      errors.push('Vital temperature is required.');
+    } else {
+      const v = parseFloat(vitals);
+      if (isNaN(v) || v < 30 || v > 45) {
+        errors.push('Vital temperature must be between 30.0 and 45.0 °C.');
+      }
+    }
+    return errors;
   }
 
-  resultsDiv.style.color = '#0057d9';
-  resultsDiv.innerHTML = `<span>${msg.loading}</span><span class="loading-spinner" aria-hidden="true"></span>`;
+  // Simulated async diagnosis logic
+  function diagnose(symptoms, history, vitals, language) {
+    // Mock diagnosis results with confidence, treatment, drug alerts, referral
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Basic mock logic for demo
+        let diagnosis = "Common Cold";
+        let confidence = 0.85;
+        let treatment = [
+          "Rest and hydration",
+          "Over-the-counter cold medications",
+          "Warm fluids like soup or tea"
+        ];
+        let drugAlert = "No known drug interactions.";
+        let referral = null;
 
-  const payload = { symptoms, history, vitals, language };
+        // Modifier based on temp
+        if (vitals > 38) {
+          diagnosis = "Flu or Viral Infection";
+          confidence = 0.92;
+          treatment.push("Consult doctor if symptoms worsen after 3 days.");
+          drugAlert = "Avoid NSAIDs if allergy present.";
+          referral = "Nearest primary healthcare clinic recommended.";
+        }
 
-  try {
-    const response = await fetch('http://127.0.0.1:5000/diagnose', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      signal: (new AbortController()).signal, 
+        // Localization stub (real translation would happen server-side or via library)
+        if (language !== 'en') {
+          diagnosis = translateMock(diagnosis, language);
+          treatment = treatment.map(t => translateMock(t, language));
+          drugAlert = translateMock(drugAlert, language);
+          referral = referral ? translateMock(referral, language) : null;
+        }
+
+        resolve({
+          diagnosis,
+          confidence,
+          treatment,
+          drugAlert,
+          referral
+        });
+      }, 2000);
     });
+  }
 
-    if (!response.ok) {
-      throw new Error(`Server responded with status ${response.status}`);
+  // Mock translation function for demo purposes
+  function translateMock(text, lang) {
+    const translations = {
+      hi: {
+        "Common Cold": "साधारण जुकाम",
+        "Flu or Viral Infection": "फ्लू या वायरल संक्रमण",
+        "Rest and hydration": "आराम और जलोजन",
+        "Over-the-counter cold medications": "ओवर-द-काउंटर सर्दी की दवाएं",
+        "Warm fluids like soup or tea": "गर्म तरल जैसे सूप या चाय",
+        "Consult doctor if symptoms worsen after 3 days.": "यदि लक्षण 3 दिन बाद बिगड़ें तो डॉक्टर से परामर्श करें।",
+        "No known drug interactions.": "कोई ज्ञात दवा अंतःक्रिया नहीं।",
+        "Avoid NSAIDs if allergy present.": "एलर्जी होने पर NSAIDs से बचें।",
+        "Nearest primary healthcare clinic recommended.": "निकटतम प्राथमिक स्वास्थ्य केंद्र की सलाह दी जाती है।"
+      },
+      ta: {
+        "Common Cold": "சாதாரண நுரையீரல் வழக்கம்",
+        "Flu or Viral Infection": "காய்ச்சல் அல்லது வைரல் தொற்று",
+        "Rest and hydration": "உறக்கம் மற்றும் நீர்சத்து",
+        "Over-the-counter cold medications": "மருந்து மருந்துகள்",
+        "Warm fluids like soup or tea": "வெப்பமான திரவங்கள் போன்ற சூப் அல்லது தேநீர்",
+        "Consult doctor if symptoms worsen after 3 days.": "3 நாட்களுக்கு பின்னர் அறிகுறிகள் மோசமாயின் மருத்துவரை அணுகவும்.",
+        "No known drug interactions.": "பெறப்பட்ட மருந்து ஊடுருவல்கள் இல்லை.",
+        "Avoid NSAIDs if allergy present.": "ஆலர்ஜி இருந்தால் NSAIDs தவிர்க்கவும்.",
+        "Nearest primary healthcare clinic recommended.": "அருகில் உள்ள சுகாதார மையத்தை பரிந்துரைக்கப்படுகிறது."
+      },
+      te: {
+        "Common Cold": "సాధారణ జలుబు",
+        "Flu or Viral Infection": "ఫ్లూ లేదా వైరల్ ఇస్తాపం",
+        "Rest and hydration": "విశ్రాంతి మరియు హైడ్రేషన్",
+        "Over-the-counter cold medications": "మందుల కోసం మందులు",
+        "Warm fluids like soup or tea": "వెడల ద్రవాలు ఎలాంటివి సూప్ లేదా టీ",
+        "Consult doctor if symptoms worsen after 3 days.": "3 రోజుల తర్వాత లక్షణాలు పెరిగితే వైద్యుని సంప్రదించండి.",
+        "No known drug interactions.": "తెలియని మందుల పరస్పర చర్యలు లేవు.",
+        "Avoid NSAIDs if allergy present.": "అలర్జి ఉంటే NSAIDs నివారించాలి.",
+        "Nearest primary healthcare clinic recommended.": "సమీప ప్రాథమిక ఆరోగ్య కేంద్రం సిఫార్సు చేయబడింది."
+      },
+      bn: {
+        "Common Cold": "সাধারণ সর্দি",
+        "Flu or Viral Infection": "ফ্লু বা ভাইরাল সংক্রমণ",
+        "Rest and hydration": "বিশ্রাম এবং হাইড্রেশন",
+        "Over-the-counter cold medications": "ওভার-দ্যা-কাউন্টার ঠান্ডাজনিত ওষুধ",
+        "Warm fluids like soup or tea": "গরম তরল যেমন স্যুপ বা চা",
+        "Consult doctor if symptoms worsen after 3 days.": "3 দিনের মধ্যে লক্ষণ খারাপ হলে ডাক্তারের পরামর্শ নিন।",
+        "No known drug interactions.": "কোনও পরিচিত ওষুধ প্রতিক্রিয়া নেই।",
+        "Avoid NSAIDs if allergy present.": "এলার্জি থাকলে NSAIDs এড়িয়ে চলুন।",
+        "Nearest primary healthcare clinic recommended.": "নিকটস্থ প্রাথমিক স্বাস্থ্যকেন্দ্র সুপারিশ করা হয়।"
+      }
+    };
+    return translations[lang]?.[text] || text;
+  }
+
+  // Display error messages
+  function showValidationErrors(errors) {
+    validationErrors.innerHTML = '';
+    if (errors.length) {
+      const ul = document.createElement('ul');
+      errors.forEach(e => {
+        const li = document.createElement('li');
+        li.textContent = e;
+        ul.appendChild(li);
+      });
+      validationErrors.appendChild(ul);
+      return true;
+    }
+    return false;
+  }
+
+  // Render diagnosis results
+  function displayResults({ diagnosis, confidence, treatment, drugAlert, referral }) {
+    resultsSection.innerHTML = `
+      <h2>Diagnosis Results</h2>
+      <p><strong>Diagnosis:</strong> ${diagnosis}</p>
+      <p><strong>Confidence Score:</strong> ${(confidence * 100).toFixed(1)}%</p>
+      <p><strong>Treatment Suggestions:</strong></p>
+      <ul>${treatment.map(t => `<li>${t}</li>`).join('')}</ul>
+      <p><strong>Drug Interaction Alert:</strong> ${drugAlert}</p>
+      ${referral ? `<p><strong>Referral Recommendation:</strong> ${referral}</p>` : ''}
+    `;
+    resultsSection.focus();
+  }
+
+  // Clear previous results and errors
+  function clearFeedback() {
+    validationErrors.innerHTML = '';
+    resultsSection.innerHTML = '';
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    clearFeedback();
+    submitButton.setAttribute('aria-busy', 'true');
+    submitButton.disabled = true;
+
+    const errors = validateForm();
+    if (showValidationErrors(errors)) {
+      submitButton.removeAttribute('aria-busy');
+      submitButton.disabled = false;
+      return;
     }
 
-    const data = await response.json();
+    const symptoms = symptomsInput.value.trim();
+    const history = historyInput.value.trim();
+    const vitals = parseFloat(vitalsInput.value.trim());
+    const language = languageSelect.value;
 
-    resultsDiv.innerHTML = `
-      <h3>${msg.diagnosis}</h3><p>${escapeHtml(data.diagnosis)}</p>
-      <h4>${msg.confidence}</h4><p>${escapeHtml(data.confidence)}%</p>
-      <h4>${msg.drugInteraction}</h4><p>${escapeHtml(data.drugInteractionAlert || 'None')}</p>
-      <h4>${msg.dosage}</h4><p>${escapeHtml(data.dosageRecommendation || 'Standard dosage applies')}</p>
-      <h4>${msg.referral}</h4><p>${escapeHtml(data.referralAdvice || 'No referral needed')}</p>
-    `;
-    resultsDiv.style.color = '#263238';
-  } catch (err) {
-    resultsDiv.textContent = msg.error + err.message;
-    resultsDiv.style.color = '#e53935';
-  }
-});
-
-function escapeHtml(text) {
-  if (!text) return '';
-  return text.replace(/[&<>"']/g, function (match) {
-    switch (match) {
-      case '&': return '&amp;';
-      case '<': return '&lt;';
-      case '>': return '&gt;';
-      case '"': return '&quot;';
-      case "'": return '&#39;';
+    resultsSection.textContent = 'Diagnosing... Please wait.';
+    
+    try {
+      const results = await diagnose(symptoms, history, vitals, language);
+      displayResults(results);
+    } catch (error) {
+      resultsSection.textContent = 'An error occurred during diagnosis. Please try again.';
+    } finally {
+      submitButton.removeAttribute('aria-busy');
+      submitButton.disabled = false;
     }
   });
-}
+});
