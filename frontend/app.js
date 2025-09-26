@@ -8,10 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const validationErrors = document.getElementById('validationErrors');
   const submitButton = form.querySelector('button[type="submit"]');
 
-  // Simple client-side validation rules
+
   function validateForm() {
     let errors = [];
-    // Trim inputs
+  
     const symptoms = symptomsInput.value.trim();
     const vitals = vitalsInput.value.trim();
 
@@ -27,12 +27,11 @@ document.addEventListener('DOMContentLoaded', () => {
     return errors;
   }
 
-  // Simulated async diagnosis logic
   function diagnose(symptoms, history, vitals, language) {
-    // Mock diagnosis results with confidence, treatment, drug alerts, referral
+  
     return new Promise((resolve) => {
       setTimeout(() => {
-        // Basic mock logic for demo
+    
         let diagnosis = "Common Cold";
         let confidence = 0.85;
         let treatment = [
@@ -43,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let drugAlert = "No known drug interactions.";
         let referral = null;
 
-        // Modifier based on temp
+      
         if (vitals > 38) {
           diagnosis = "Flu or Viral Infection";
           confidence = 0.92;
@@ -52,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
           referral = "Nearest primary healthcare clinic recommended.";
         }
 
-        // Localization stub (real translation would happen server-side or via library)
+      
         if (language !== 'en') {
           diagnosis = translateMock(diagnosis, language);
           treatment = treatment.map(t => translateMock(t, language));
@@ -71,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Mock translation function for demo purposes
   function translateMock(text, lang) {
     const translations = {
       hi: {
@@ -122,7 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return translations[lang]?.[text] || text;
   }
 
-  // Display error messages
   function showValidationErrors(errors) {
     validationErrors.innerHTML = '';
     if (errors.length) {
@@ -138,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return false;
   }
 
-  // Render diagnosis results
+
   function displayResults({ diagnosis, confidence, treatment, drugAlert, referral }) {
     resultsSection.innerHTML = `
       <h2>Diagnosis Results</h2>
@@ -152,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
     resultsSection.focus();
   }
 
-  // Clear previous results and errors
+
   function clearFeedback() {
     validationErrors.innerHTML = '';
     resultsSection.innerHTML = '';
