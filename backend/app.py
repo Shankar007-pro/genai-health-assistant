@@ -1,37 +1,74 @@
+import os
+import logging
+import asyncio
 from flask import Flask, request, jsonify
-import openai
-from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
+from flask_cors import CORS
 import sqlite3
+from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
+import openai
+
+# Logging setup
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Config from environment
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "your-default-key-here")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4")
+openai.api_key = OPENAI_API_KEY
 
 app = Flask(__name__)
+CORS(app, resources={r"/diagnose": {"origins": "*"}})
 
-openai.api_key = "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"
-
+# Initialize NER pipeline once
 tokenizer = AutoTokenizer.from_pretrained("ugaray96/biobert_ncbi_disease_ner")
 model = AutoModelForTokenClassification.from_pretrained("ugaray96/biobert_ncbi_disease_ner")
 ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple")
 
+DB_PATH = 'patients.db'
+
+def get_db_connection():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
+
 def init_db():
-    conn = sqlite3.connect('patients.db')
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS records
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  symptoms TEXT,
-                  history TEXT,
-                  vitals TEXT,
-                  diagnosis TEXT)''')
-    conn.commit()
-    conn.close()
+    with get_db_connection() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS records (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                symptoms TEXT NOT NULL,
+                history TEXT,
+                vitals TEXT,
+                diagnosis TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        conn.commit()
+    logger.info("Database initialized.")
 
 def save_record(symptoms, history, vitals, diagnosis):
-    conn = sqlite3.connect('patients.db')
-    c = conn.cursor()
-    c.execute("INSERT INTO records (symptoms, history, vitals, diagnosis) VALUES (?, ?, ?, ?)",
-              (symptoms, history, vitals, diagnosis))
-    conn.commit()
-    conn.close()
+    try:
+        with get_db_connection() as conn:
+            conn.execute(
+                "INSERT INTO records (symptoms, history, vitals, diagnosis) VALUES (?, ?, ?, ?)",
+                (symptoms, history, vitals, diagnosis)
+            )
+            conn.commit()
+        logger.info("Record saved.")
+    except Exception as e:
+        logger.error(f"Error saving record: {e}")
 
-def run_gpt4(symptoms, history, vitals):
+def extract_diseases(text):
+    if not text.strip():
+        return []
+    ner_results = ner_pipeline(text)
+    diseases = set()
+    for entity in ner_results:
+        if entity.get('entity_group') == 'Disease':
+            diseases.add(entity['word'].strip().lower())
+    return list(diseases)
+
+async def run_gpt4_async(symptoms, history, vitals):
     prompt = (
         f"Patient symptoms: {symptoms}\n"
         f"Medical history: {history}\n"
@@ -39,49 +76,61 @@ def run_gpt4(symptoms, history, vitals):
         "Provide a differential diagnosis with confidence scores, suggested treatments, and referral advice."
     )
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
+        response = await openai.ChatCompletion.acreate(
+            model=OPENAI_MODEL,
             messages=[{"role": "user", "content": prompt}],
             max_tokens=500,
             temperature=0.2,
         )
-        diagnosis_text = response['choices'][0]['message']['content']
-        return diagnosis_text
+        return response.choices[0].message.content
     except Exception as e:
+        logger.error(f"GPT-4 API error: {e}")
         return f"Error during GPT-4 API call: {str(e)}"
 
-def extract_diseases(text):
-    if not text.strip():
-        return []
-    ner_results = ner_pipeline(text)
-    diseases = []
-    for entity in ner_results:
-        if entity['entity_group'] == 'Disease':
-            diseases.append(entity['word'])
-    return list(set(diseases))  # Remove duplicates
+def validate_input(data):
+    errors = []
+    if "symptoms" not in data or not data["symptoms"].strip():
+        errors.append("Symptoms are required.")
+    vitals = data.get("vitals", "")
+    if vitals:
+        try:
+            temp = float(vitals)
+            if not (30 <= temp <= 45):
+                errors.append("Vitals temperature must be between 30 and 45 °C.")
+        except ValueError:
+            errors.append("Vitals must be a valid number.")
+    return errors
 
 @app.route("/diagnose", methods=["POST"])
 def diagnose():
     data = request.json
-    symptoms = data.get("symptoms", "")
-    history = data.get("history", "")
-    vitals = data.get("vitals", "")
+    if not data:
+        return jsonify({"error": "Invalid JSON data."}), 400
 
+    errors = validate_input(data)
+    if errors:
+        return jsonify({"errors": errors}), 400
 
-    extracted_diseases = extract_diseases(symptoms + " " + history)
+    symptoms = data.get("symptoms", "").strip()
+    history = data.get("history", "").strip()
+    vitals = data.get("vitals", "").strip()
 
+    diseases = extract_diseases(f"{symptoms} {history}")
 
-    diagnosis = run_gpt4(symptoms, history, vitals)
-
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    diagnosis = loop.run_until_complete(run_gpt4_async(symptoms, history, vitals))
+    loop.close()
 
     save_record(symptoms, history, vitals, diagnosis)
 
     return jsonify({
-        "extracted_diseases": extracted_diseases,
-        "diagnosis": diagnosis
-    })
+        "extracted_diseases": diseases,
+        "diagnosis": diagnosis,
+        "confidence": None  # can parse confidence later if needed
+    }), 200
 
 if __name__ == "__main__":
-    print("Initializing database...")
+    logger.info("Starting GenAI Health Assistant server...")
     init_db()
     app.run(host="0.0.0.0", port=5000, debug=True)
