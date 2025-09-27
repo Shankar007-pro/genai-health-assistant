@@ -1,4 +1,4 @@
--- Enable foreign keys (uncomment if using relational integrity)
+
 /*
 PRAGMA foreign_keys = ON;
 */
@@ -18,6 +18,5 @@ CREATE TABLE IF NOT EXISTS patients (
     UNIQUE(id)
 );
 
--- Indexes for performance on searches by language and timestamp
 CREATE INDEX IF NOT EXISTS idx_patients_language ON patients(language);
 CREATE INDEX IF NOT EXISTS idx_patients_timestamp ON patients(timestamp);
