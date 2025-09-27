@@ -1,25 +1,26 @@
-import os
 import logging
-import asyncio
 from flask import Flask, request, jsonify
-from flask_cors import CORS  
+from flask_cors import CORS
 import sqlite3
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
-import openai
+from transformers import BioGptTokenizer, BioGptForCausalLM, pipeline as gen_pipeline, set_seed
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "your-default-key-here")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4")
-openai.api_key = OPENAI_API_KEY
-
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes (adjust origins if needed)
+CORS(app)  # Enable CORS
 
+# Initialize NER pipeline (BioBERT disease NER)
 tokenizer = AutoTokenizer.from_pretrained("ugaray96/biobert_ncbi_disease_ner")
 model = AutoModelForTokenClassification.from_pretrained("ugaray96/biobert_ncbi_disease_ner")
 ner_pipeline = pipeline("ner", model=model, tokenizer=tokenizer, aggregation_strategy="simple")
+
+# Initialize BioGPT generative model
+biogpt_tokenizer = BioGptTokenizer.from_pretrained("microsoft/biogpt")
+biogpt_model = BioGptForCausalLM.from_pretrained("microsoft/biogpt")
+generator = gen_pipeline('text-generation', model=biogpt_model, tokenizer=biogpt_tokenizer)
+set_seed(42)
 
 DB_PATH = 'patients.db'
 
@@ -65,24 +66,17 @@ def extract_diseases(text):
             diseases.add(entity['word'].strip().lower())
     return list(diseases)
 
-async def run_gpt4_async(symptoms, history, vitals):
+def generate_diagnosis_biogpt(symptoms, history, vitals):
     prompt = (
         f"Patient symptoms: {symptoms}\n"
         f"Medical history: {history}\n"
         f"Vital signs: {vitals}\n"
-        "Provide a differential diagnosis with confidence scores, suggested treatments, and referral advice."
+        f"Provide a detailed differential diagnosis with confidence scores, suggested treatments, and referral advice."
     )
-    try:
-        response = await openai.ChatCompletion.acreate(
-            model=OPENAI_MODEL,
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=500,
-            temperature=0.2,
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        logger.error(f"GPT-4 API error: {e}")
-        return f"Error during GPT-4 API call: {str(e)}"
+    outputs = generator(prompt, max_length=200, num_return_sequences=1, do_sample=True)
+    generated_text = outputs[0]['generated_text']
+    diagnosis_text = generated_text[len(prompt):].strip() if generated_text.startswith(prompt) else generated_text
+    return diagnosis_text
 
 def validate_input(data):
     errors = []
@@ -113,20 +107,18 @@ def diagnose():
     vitals = data.get("vitals", "").strip()
 
     diseases = extract_diseases(f"{symptoms} {history}")
-
-
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    diagnosis = loop.run_until_complete(run_gpt4_async(symptoms, history, vitals))
-    loop.close()
-
+    diagnosis = generate_diagnosis_biogpt(symptoms, history, vitals)
     save_record(symptoms, history, vitals, diagnosis)
 
     return jsonify({
         "extracted_diseases": diseases,
         "diagnosis": diagnosis,
-        "confidence": None
+        "confidence": None  # Optionally calculate confidence later
     }), 200
+
+@app.route("/")
+def home():
+    return "GenAI Health Assistant Backend is running."
 
 if __name__ == "__main__":
     logger.info("Starting GenAI Health Assistant server...")
