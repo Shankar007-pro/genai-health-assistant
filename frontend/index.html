@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>GenAI Health Assistant - Medical Diagnosis Assistant</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="app.js" defer></script>
 </head>
 <body>
   <main>
@@ -12,7 +13,7 @@
     <form id="diagnosisForm" novalidate aria-describedby="formInstructions">
       <p id="formInstructions" class="sr-only">
         Enter your symptoms, optional medical history, vital signs, and choose language.
-        Press Diagnose to get results including confidence, treatment options, drug alerts, and referrals.
+        Press Diagnose to get results including confidence, treatment, drug alerts, and referrals.
       </p>
 
       <label for="symptoms">Symptoms <span aria-hidden="true">*</span>:</label>
@@ -43,7 +44,5 @@
 
     <section id="results" role="region" aria-live="polite" aria-atomic="true" tabindex="0"></section>
   </main>
-
-  <script src="app.js" defer></script>
 </body>
 </html>
