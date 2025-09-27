@@ -2,7 +2,7 @@ import os
 import logging
 import asyncio
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask_cors import CORS  # Added import for CORS
 import sqlite3
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 import openai
@@ -17,7 +17,7 @@ OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4")
 openai.api_key = OPENAI_API_KEY
 
 app = Flask(__name__)
-CORS(app, resources={r"/diagnose": {"origins": "*"}})
+CORS(app)  # Enable CORS for all routes (adjust origins if needed)
 
 # Initialize NER pipeline once
 tokenizer = AutoTokenizer.from_pretrained("ugaray96/biobert_ncbi_disease_ner")
@@ -117,6 +117,7 @@ def diagnose():
 
     diseases = extract_diseases(f"{symptoms} {history}")
 
+    # Run GPT-4 async call within sync route using event loop
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     diagnosis = loop.run_until_complete(run_gpt4_async(symptoms, history, vitals))
@@ -127,7 +128,7 @@ def diagnose():
     return jsonify({
         "extracted_diseases": diseases,
         "diagnosis": diagnosis,
-        "confidence": None  # can parse confidence later if needed
+        "confidence": None
     }), 200
 
 if __name__ == "__main__":
