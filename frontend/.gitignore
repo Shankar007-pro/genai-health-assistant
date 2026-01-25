@@ -1,0 +1,7 @@
+Set-Content .gitignore "frontend/node_modules/
+backend/venv/
+backend/__pycache__/
+.env
+backend/.env
+frontend/build/
+*.pyc"
