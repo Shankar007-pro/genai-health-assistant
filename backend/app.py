@@ -1,27 +1,22 @@
 import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import google.generativeai as genai
+from groq import Groq  # Updated library
 from dotenv import load_dotenv
 
 # 1. Initialize the App
 app = Flask(__name__)
-CORS(app)  # Enables the Frontend to talk to the Backend
+CORS(app)
 
 # 2. Configure API Key
-load_dotenv() # Load key from .env file (for Localhost)
-
-# Get the key from the environment (Works for both Render and Localhost)
-api_key = os.getenv("GEMINI_API_KEY")
+load_dotenv()
+api_key = os.getenv("GROQ_API_KEY")
 
 if not api_key:
-    print("❌ ERROR: No API Key found! Please check your .env file or Render settings.")
+    print("❌ ERROR: No GROQ_API_KEY found in .env or environment variables.")
 else:
-    genai.configure(api_key=api_key)
-
-# 3. Initialize the Model (Switched to Stable Version)
-# 'gemini-1.5-flash' is much faster and has higher free limits than 'flash-latest'
-model = genai.GenerativeModel('gemini-1.5-flash')
+    # Initialize the Groq Client
+    client = Groq(api_key=api_key)
 
 # --- SYSTEM PERSONA ---
 SYSTEM_INSTRUCTION = """
@@ -44,23 +39,33 @@ def chat():
     user_message = data.get('message')
     history = data.get('history', [])
 
-    # Construct the conversation prompt
-    # We add the System Instruction at the very start
-    conversation = f"{SYSTEM_INSTRUCTION}\n\nCurrent Conversation:\n"
+    # Format history for Groq's Chat Completion API
+    messages = [{"role": "system", "content": SYSTEM_INSTRUCTION}]
     
+    # Add conversation history
     for msg in history:
-        role = "User" if msg['role'] == 'user' else "Model"
-        conversation += f"{role}: {msg['content']}\n"
+        role = "assistant" if msg['role'] == 'model' else "user"
+        messages.append({"role": role, "content": msg['content']})
     
-    conversation += f"User: {user_message}\nModel:"
+    # Add current user message
+    messages.append({"role": "user", "content": user_message})
 
     try:
-        response = model.generate_content(conversation)
-        return jsonify({"reply": response.text})
+        # Generate completion using Llama 3.3 70B
+        chat_completion = client.chat.completions.create(
+            messages=messages,
+            model="llama-3.3-70b-versatile", # High limit, high speed
+            temperature=0.5,
+            max_tokens=1024,
+        )
+        
+        reply = chat_completion.choices[0].message.content
+        return jsonify({"reply": reply})
+
     except Exception as e:
-        print(f"-------------> GOOGLE ERROR: {e}") 
-        # Returns the error to the frontend console so we can see it
-        return jsonify({"reply": "**Error:** System is busy or Key is invalid. Try again in 1 minute."})
+        print(f"-------------> GROQ ERROR: {e}")
+        return jsonify({"reply": "**Error:** The health assistant is busy. Please try again in a few moments."})
 
 if __name__ == '__main__':
+    # Use port 5000 as per your previous configuration
     app.run(debug=True, port=5000)
