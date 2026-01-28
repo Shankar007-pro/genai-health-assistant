@@ -1,4 +1,11 @@
 ---
+title: Aarogya AI
+emoji: 🩺
+colorFrom: green
+colorTo: blue
+sdk: docker
+pinned: false
+---
 
 # 🩺 Aarogya-AI: Rural Health Assistant
 
@@ -31,46 +38,86 @@ To host this yourself on Hugging Face:
 3. **Configure Secrets:** Add your `GROQ_API_KEY` in the Hugging Face Space Settings.
 4. **Port Mapping:** Ensure the container exposes port **7860**.
 
----
-
 ## 💻 How to Run Locally
+
+Follow these steps to set up the development environment on your local machine.
 
 ### 1. Prerequisites
 
-* **Python 3.9+** and **Node.js** installed.
-* A **Groq API Key** (Get it from [GroqCloud](https://console.groq.com/)).
+* **Python 3.9+** and **Node.js (LTS)** installed.
+* A **Groq API Key**: Obtain one for free from the [GroqCloud Console](https://console.groq.com/).
 
-### 2. Backend Setup
+### 2. Backend Setup (Flask)
 
-1. Navigate to the `backend` folder.
-2. Create a `.env` file and add: `GROQ_API_KEY=your_key_here`.
-3. Install dependencies:
+1. Navigate to the backend directory:
+```bash
+cd backend
+
+```
+
+
+2. Create a virtual environment and activate it:
+```bash
+python -m venv venv
+# On Windows:
+venv\Scripts\activate
+# On Mac/Linux:
+source venv/bin/activate
+
+```
+
+
+3. Install the required Python packages:
 ```bash
 pip install -r requirements.txt
 
 ```
 
 
-4. Start the Flask server:
+4. Create a `.env` file in the `backend` folder and add your key:
+```env
+GROQ_API_KEY=your_actual_api_key_here
+
+```
+
+
+5. Start the Flask server:
 ```bash
 python app.py
 
 ```
 
 
+*The backend will now be running at `http://localhost:7860*`.
 
-### 3. Frontend Setup
+### 3. Frontend Setup (React)
 
-1. Navigate to the `frontend` folder.
-2. Install dependencies:
+1. Open a new terminal window and navigate to the frontend directory:
+```bash
+cd frontend
+
+```
+
+
+2. Install the Node modules:
 ```bash
 npm install
 
 ```
 
 
-3. Run the development server:
+3. Start the React development server:
 ```bash
 npm start
 
 ```
+
+
+*The app will open automatically in your browser at `http://localhost:3000*`.
+
+---
+
+### **Project Architecture Overview**
+
+* **Frontend-Backend Sync:** In the local environment, the React app communicates with the Flask server using **CORS** (Cross-Origin Resource Sharing).
+* **Production vs. Local:** While the local setup uses `npm start`, your Hugging Face deployment uses `npm run build` to serve static files directly through Flask for better performance.
