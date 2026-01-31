@@ -1,4 +1,3 @@
----
 
 ```markdown
 ---
@@ -11,79 +10,73 @@ app_port: 7860
 pinned: false
 ---
 
-# 🩺 Aarogya-AI: Rural Health Assistant
+# 🩺 Aarogya-AI: Intelligent Rural Health Assistant
 
-**Aarogya-AI** is a compassionate, AI-powered medical assistant designed specifically for rural India. It bridges the gap in healthcare accessibility by understanding symptoms and providing guidance in multiple regional languages. 
+**Aarogya-AI** is a multimodal, multilingual AI assistant specifically engineered to bridge the healthcare gap in rural India. By utilizing state-of-the-art Large Language Models (LLMs), it provides instant symptom analysis, home remedies, and emergency guidance in regional languages.
 
-> ⚠️ **MEDICAL DISCLAIMER:** > This application is for **informational purposes only**. It is NOT a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider. In case of an emergency, contact local emergency services immediately.
+> ⚠️ **IMPORTANT MEDICAL DISCLAIMER:**
+> This application is an AI-powered informational tool and **not** a substitute for professional medical advice, diagnosis, or treatment. It does not provide clinical diagnoses. Always consult a qualified healthcare provider for medical concerns. **In emergencies, contact local medical services immediately.**
 
-## 🚀 Live Demo
-**[Interact with Aarogya-AI on Hugging Face](https://shankar0747-aarogya-ai-v2.hf.space/)**
+## 🚀 Live Deployment
+**[Access the Live Interface on Hugging Face](https://shankar0747-aarogya-ai-v2.hf.space/)**
 
-## ✨ Key Features
-* **Multimodal Interaction:** * 🎤 **Voice:** Speak your symptoms naturally using Whisper-powered transcription.
-    * 📸 **Vision:** Upload images of skin conditions or symptoms for instant analysis.
-* **Multilingual Support:** Intelligent detection and response in **Telugu, Hindi, Tamil, Kannada, and English**.
-* **Emergency Detection:** Instantly identifies life-threatening symptoms and provides immediate red-alert warnings.
-* **Markdown Reports:** Generates clean, structured advice including **Diagnosis**, **Home Remedies**, and **Generic Medicine** names.
-* **Ultra-Fast Inference:** Powered by **Groq Cloud** for near-instant responses.
+## ✨ Key Capabilities
+* **Multimodal Diagnosis Support:**
+    * 🎤 **Voice:** Natural language symptom reporting via Whisper-powered transcription.
+    * 📸 **Vision:** Analysis of skin conditions or physical symptoms using Llama 4 Vision.
+* **Native Multilingual Engine:** Intelligent support for **Telugu, Hindi, Tamil, Kannada, and English**.
+* **Emergency Triaging:** Real-time detection of high-risk symptoms (e.g., respiratory distress, cardiac pain) with immediate escalation warnings.
+* **Structured Clinical Guidance:** Outputs formatted in Markdown with specific sections for **Possible Condition**, **Recommended Care**, and **Generic Medications**.
 
-## 🛠️ Tech Stack
-* **Frontend:** React.js (Vite)
-* **Backend:** Flask (Python) + Gunicorn
-* **AI Models:** * Chat: `llama-3.3-70b-versatile`
-    * Vision: `meta-llama/llama-4-scout-17b-16e-instruct`
-    * Voice: `whisper-large-v3-turbo`
-* **Containerization:** Docker
+## 🛠️ Technical Architecture
+* **Frontend:** React.js (Vite) with Markdown processing.
+* **Backend:** Flask (Python) served via Gunicorn.
+* **AI Model Pipeline (Groq Inference):**
+    * **Chat/Reasoning:** `llama-3.3-70b-versatile`
+    * **Visual Analysis:** `meta-llama/llama-4-scout-17b-16e-instruct`
+    * **Speech-to-Text:** `whisper-large-v3-turbo`
+* **Infrastructure:** Containerized via Docker.
 
-## 🔧 Environment Variables
-To run this project, you need to add the following secret to your environment or Hugging Face Space:
 
-| Key | Description |
-| :--- | :--- |
-| `GROQ_API_KEY` | Your API key from [GroqCloud Console](https://console.groq.com/) |
+## 💻 Local Development Environment
 
-## 💻 Local Development
-
-### 1. Prerequisites
+### Prerequisites
 * Python 3.10+
 * Node.js 18+
-* **FFmpeg** (Required for audio/voice processing)
+* **FFmpeg** (System-level requirement for audio processing)
 
-### 2. Backend Setup
+### Backend Setup
 ```bash
 cd backend
 python -m venv venv
-# Windows: .\venv\Scripts\activate | Mac/Linux: source venv/bin/activate
+# Activate: .\venv\Scripts\activate (Windows) or source venv/bin/activate (Unix)
 pip install -r requirements.txt
-# Create .env and add: GROQ_API_KEY=your_key
+# Configure .env with GROQ_API_KEY
 python app.py
 
 ```
 
-### 3. Frontend Setup
+### Frontend Setup
 
 ```bash
 cd frontend
 npm install
-npm run build # For production testing
-npm start     # For development
+npm start
 
 ```
 
-## 📦 Deployment Guide (Hugging Face)
+## 📦 Deployment Configuration
 
-This project is configured for **Docker SDK**. When you push to Hugging Face:
+This repository is optimized for **Hugging Face Spaces (Docker SDK)**.
 
-1. The `Dockerfile` builds the React frontend.
-2. It installs `ffmpeg` and Python dependencies in a Linux container.
-3. The Flask server serves the static React build on port **7860**.
+The `Dockerfile` handles the multi-stage build process:
 
-**Quick Push Command (PowerShell):**
-`git add . ; git commit -m "Update Aarogya-AI" ; git push origin main`
+1. Compiles the React production build.
+2. Initializes a Python environment with `FFmpeg`.
+3. Exposes port **7860** for the Gunicorn gateway.
 
 ---
 
-*Developed with ❤️ by **Shankar Reddy** - Specialized in AI & ML*
+*Developed with ❤️ by [Shankar Reddy**](https://www.google.com/search?q=https://github.com/Shankar007-pro) *Specializing in Computer Science (AI & ML) at SVCET*
 
 ```
