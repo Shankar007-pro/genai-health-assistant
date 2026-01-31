@@ -1,5 +1,7 @@
+---
 
---
+```markdown
+---
 title: Aarogya AI
 emoji: 🩺
 colorFrom: green
@@ -83,11 +85,5 @@ This project is configured for **Docker SDK**. When you push to Hugging Face:
 ---
 
 *Developed with ❤️ by **Shankar Reddy** - Specialized in AI & ML*
-
-```
-
----
-
-**Would you like me to also generate a `.dockerignore` file to make your future uploads even faster by skipping unnecessary files?**
 
 ```
