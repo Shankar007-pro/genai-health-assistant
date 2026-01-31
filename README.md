@@ -1,5 +1,4 @@
 
-```markdown
 ---
 title: Aarogya AI
 emoji: 🩺
