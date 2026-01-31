@@ -1,123 +1,95 @@
 ---
+
+```markdown
+---
 title: Aarogya AI
 emoji: 🩺
 colorFrom: green
 colorTo: blue
 sdk: docker
+app_port: 7860
 pinned: false
 ---
 
 # 🩺 Aarogya-AI: Rural Health Assistant
 
-**Aarogya-AI** is a compassionate AI medical assistant designed for rural India, capable of understanding symptoms and providing health advice in multiple regional languages. It leverages high-speed inference to provide instant support for symptom checking, home remedies, and emergency guidance.
+**Aarogya-AI** is a compassionate, AI-powered medical assistant designed specifically for rural India. It bridges the gap in healthcare accessibility by understanding symptoms and providing guidance in multiple regional languages. 
+
+> ⚠️ **MEDICAL DISCLAIMER:** > This application is for **informational purposes only**. It is NOT a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider. In case of an emergency, contact local emergency services immediately.
 
 ## 🚀 Live Demo
-
-**[Click here to view the live app](https://shankar0747-aarogya-ai.hf.space/)**
-
-## 🛠️ Tech Stack
-
-* **Frontend:** React.js with Vite and Markdown rendering.
-* **Backend:** Flask (Python) with Gunicorn for production.
-* **AI Engine:** Groq SDK utilizing the **Llama-3.3-70B** model.
-* **Deployment:** Dockerized on Hugging Face Spaces.
+**[Interact with Aarogya-AI on Hugging Face](https://shankar0747-aarogya-ai-v2.hf.space/)**
 
 ## ✨ Key Features
+* **Multimodal Interaction:** * 🎤 **Voice:** Speak your symptoms naturally using Whisper-powered transcription.
+    * 📸 **Vision:** Upload images of skin conditions or symptoms for instant analysis.
+* **Multilingual Support:** Intelligent detection and response in **Telugu, Hindi, Tamil, Kannada, and English**.
+* **Emergency Detection:** Instantly identifies life-threatening symptoms and provides immediate red-alert warnings.
+* **Markdown Reports:** Generates clean, structured advice including **Diagnosis**, **Home Remedies**, and **Generic Medicine** names.
+* **Ultra-Fast Inference:** Powered by **Groq Cloud** for near-instant responses.
 
-* **Multilingual Support:** Detects and responds in Hindi, Telugu, Tamil, and more.
-* **Emergency Detection:** Instantly recognizes dangerous symptoms and urges professional medical help.
-* **Markdown Support:** Provides clean, structured medical advice using diagnosis and remedy headers.
-* **Optimized Performance:** Uses Groq Cloud for near-instant AI responses.
+## 🛠️ Tech Stack
+* **Frontend:** React.js (Vite)
+* **Backend:** Flask (Python) + Gunicorn
+* **AI Models:** * Chat: `llama-3.3-70b-versatile`
+    * Vision: `meta-llama/llama-4-scout-17b-16e-instruct`
+    * Voice: `whisper-large-v3-turbo`
+* **Containerization:** Docker
 
-## 🔧 Deployment Instructions
+## 🔧 Environment Variables
+To run this project, you need to add the following secret to your environment or Hugging Face Space:
 
-To host this yourself on Hugging Face:
+| Key | Description |
+| :--- | :--- |
+| `GROQ_API_KEY` | Your API key from [GroqCloud Console](https://console.groq.com/) |
 
-1. **Build the Frontend:** Run `npm run build` to generate the production folder.
-2. **Dockerize:** Use the provided Dockerfile to bundle the Flask server and the React build.
-3. **Configure Secrets:** Add your `GROQ_API_KEY` in the Hugging Face Space Settings.
-4. **Port Mapping:** Ensure the container exposes port **7860**.
-
-## 💻 How to Run Locally
-
-Follow these steps to set up the development environment on your local machine.
+## 💻 Local Development
 
 ### 1. Prerequisites
+* Python 3.10+
+* Node.js 18+
+* **FFmpeg** (Required for audio/voice processing)
 
-* **Python 3.9+** and **Node.js (LTS)** installed.
-* A **Groq API Key**: Obtain one for free from the [GroqCloud Console](https://console.groq.com/).
-
-### 2. Backend Setup (Flask)
-
-1. Navigate to the backend directory:
+### 2. Backend Setup
 ```bash
 cd backend
-
-```
-
-
-2. Create a virtual environment and activate it:
-```bash
 python -m venv venv
-# On Windows:
-venv\Scripts\activate
-# On Mac/Linux:
-source venv/bin/activate
-
-```
-
-
-3. Install the required Python packages:
-```bash
+# Windows: .\venv\Scripts\activate | Mac/Linux: source venv/bin/activate
 pip install -r requirements.txt
-
-```
-
-
-4. Create a `.env` file in the `backend` folder and add your key:
-```env
-GROQ_API_KEY=your_actual_api_key_here
-
-```
-
-
-5. Start the Flask server:
-```bash
+# Create .env and add: GROQ_API_KEY=your_key
 python app.py
 
 ```
 
+### 3. Frontend Setup
 
-*The backend will now be running at `http://localhost:7860*`.
-
-### 3. Frontend Setup (React)
-
-1. Open a new terminal window and navigate to the frontend directory:
 ```bash
 cd frontend
-
-```
-
-
-2. Install the Node modules:
-```bash
 npm install
+npm run build # For production testing
+npm start     # For development
 
 ```
 
+## 📦 Deployment Guide (Hugging Face)
 
-3. Start the React development server:
-```bash
-npm start
+This project is configured for **Docker SDK**. When you push to Hugging Face:
 
-```
+1. The `Dockerfile` builds the React frontend.
+2. It installs `ffmpeg` and Python dependencies in a Linux container.
+3. The Flask server serves the static React build on port **7860**.
 
-
-*The app will open automatically in your browser at `http://localhost:3000*`.
+**Quick Push Command (PowerShell):**
+`git add . ; git commit -m "Update Aarogya-AI" ; git push origin main`
 
 ---
 
-### **Project Architecture Overview**
+*Developed with ❤️ by **Shankar Reddy** - Specialized in AI & ML*
 
-* **Frontend-Backend Sync:** In the local environment, the React app communicates with the Flask server using **CORS** (Cross-Origin Resource Sharing).
-* **Production vs. Local:** While the local setup uses `npm start`, your Hugging Face deployment uses `npm run build` to serve static files directly through Flask for better performance.
+```
+
+---
+
+**Would you like me to also generate a `.dockerignore` file to make your future uploads even faster by skipping unnecessary files?**
+
+```
