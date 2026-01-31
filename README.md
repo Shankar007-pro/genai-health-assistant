@@ -1,7 +1,5 @@
----
 
-```markdown
----
+--
 title: Aarogya AI
 emoji: 🩺
 colorFrom: green
