@@ -76,6 +76,5 @@ The `Dockerfile` handles the multi-stage build process:
 
 ---
 
-*Developed with ❤️ by [Shankar Reddy**](https://www.google.com/search?q=https://github.com/Shankar007-pro) *Specializing in Computer Science (AI & ML) at SVCET*
+*Developed with ❤️ by [Shankar Reddy](https://www.google.com/search?q=https://github.com/Shankar2027) *Specializing in Computer Science (AI & ML) at SVCET*
 
-```
